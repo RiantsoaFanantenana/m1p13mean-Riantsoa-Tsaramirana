@@ -18,6 +18,10 @@ exports.login = async (req, res) => {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
+  if(user.isConfigured == false) {
+    return res.status(401).json({ message: "You haven't configured your account yet. Please check your email first."})
+  }
+  
   const isValid = await comparePassword(password, user.password);
   if (!isValid) {
     return res.status(401).json({ message: "Invalid email or password" });
