@@ -7,7 +7,8 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "UserType",
     required: true
-  }
+  },
+  isConfigured: {type: Boolean, default: true}
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", UserSchema);
