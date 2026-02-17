@@ -4,7 +4,8 @@ const jwt = require("jsonwebtoken");
 const {
   hashPassword,
   comparePassword
-} = require("../utils/password.util");
+} = require("../util/password.util");
+const { referenceIds } = require("../config/referenceIds");
 
 // =====================
 // LOGIN (client / shop / admin)
@@ -38,6 +39,7 @@ exports.login = async (req, res) => {
 // REGISTER (CLIENT ONLY)
 // =====================
 exports.registerClient = async (req, res) => {
+  console.log("BODY:", req.body);
   const { email, password, userName, name, birthDate } = req.body;
   
   const existingUser = await User.findOne({ email });
@@ -49,7 +51,7 @@ exports.registerClient = async (req, res) => {
   const user = await User.create({
     email,
     password: hashedPassword,
-    role: "client"
+    userType: referenceIds.client_id
   });
 
   await ClientProfile.create({
