@@ -1,8 +1,38 @@
 
 import User from '../models/user/User.js'
 import ShopProfile from '../models/shop/ShopProfile.js';
+import BoxTicket from '../models/mall/BoxTicket.js';
 import {createShopWithContract} from '../services/admin.services.js';
 
+// =====================
+// CHANGE TICKETS STATUS
+// =====================
+export const changeTicketStatus = async (req, res) => {
+  try {
+    const { ticketId, newStatus } = req.body;
+    const ticket = await BoxTicket.findById(ticketId);
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+    ticket.status = newStatus;
+    await ticket.save();
+
+    res.json({ message: "Ticket status updated successfully", ticket });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+// =====================
+// LIST OF TICKETS
+// =====================
+export const listTickets = async (req, res) => {
+    try {
+        const tickets = await BoxTicket.find().populate('box').populate('shopProfile');
+        res.json(tickets);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
 // =====================
 // SHOP REGISTRATION (ADMIN ONLY)
 // =====================
