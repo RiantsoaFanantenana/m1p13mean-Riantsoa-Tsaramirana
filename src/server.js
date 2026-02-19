@@ -3,10 +3,13 @@ import 'dotenv/config'; // équivalent de require("dotenv").config()
 import express from 'express';
 import cors from 'cors';
 import connectDB from './config/db.js';
-import authRoutes from './routes/auth.routes.js';
 import seedData from './config/seeds.js';
+import seedBoxes from './config/box.seeds.js';
 import { populateReferenceIds } from './config/referenceIds.js';
 
+import authRoutes from './routes/auth.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import shopRoutes from './routes/shop.routes.js';
 const app = express();
 
 // middlewares
@@ -18,9 +21,11 @@ await connectDB();
 
 // routes
 app.use('/api/auth', authRoutes);
-
+app.use('/api/admin', adminRoutes); // routes admin
+app.use('/api/shop', shopRoutes); 
 // seed et cache des _id
-await seedData();           
+await seedData();     
+await seedBoxes();      
 await populateReferenceIds(); 
 
 const PORT = process.env.PORT || 3000;
