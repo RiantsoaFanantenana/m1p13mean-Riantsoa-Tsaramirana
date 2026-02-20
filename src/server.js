@@ -10,6 +10,8 @@ import { populateReferenceIds } from './config/referenceIds.js';
 import authRoutes from './routes/auth.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import shopRoutes from './routes/shop.routes.js';
+import configRoutes from './routes/config.routes.js';
+
 const app = express();
 
 // middlewares
@@ -23,6 +25,7 @@ await connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes); // routes admin
 app.use('/api/shop', shopRoutes); 
+app.use('/api/config', configRoutes); // routes de configuration
 // seed et cache des _id
 await seedData();     
 await seedBoxes();      
