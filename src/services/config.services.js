@@ -5,15 +5,10 @@ export const getConfigurationItems = async (tableName) => {
 
   const config = await Configuration.findOne({ key: "allowed_config_tables" });
 
-  if (!config || !config.value.includes(tableName)) {
-    throw new Error("Unauthorized configuration table");
-  }
+  const table = config.value.find(t => t.alias === tableName);
 
-  if (!mongoose.models[tableName]) {
-    throw new Error("Model not found");
-  }
+  if (!table) throw new Error("Unauthorized table");
 
-  const Model = mongoose.model(tableName);
-
+  const Model = mongoose.model(table.model);
   return await Model.find();
 };
