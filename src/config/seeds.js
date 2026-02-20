@@ -36,6 +36,25 @@ const seedData = async () => {
     );
   }
 
+  // -------- Configuration (Allowed Config Tables) --------
+  await Configuration.updateOne(
+    { key: "allowed_config_tables" },
+    {
+      key: "allowed_config_tables",
+      value: [
+        {
+          alias: "shop-types",
+          model: "ShopType"
+        },
+        {
+          alias: "subscription-types",
+          model: "SubscriptionType"
+        }
+      ]
+    },
+    { upsert: true }
+  );
+
   console.log("✅ Seed data completed");
 };
 
