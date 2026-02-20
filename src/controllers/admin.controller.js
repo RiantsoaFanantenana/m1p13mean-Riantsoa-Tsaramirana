@@ -5,6 +5,17 @@ import BoxTicket from '../models/mall/BoxTicket.js';
 import {createShopWithContract} from '../services/admin.services.js';
 
 // =====================
+// GET RENT REVENUES IN A PERIOD OF TIME
+// =====================
+export const getRentRevenues = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+  }
+  catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+// =====================
 // CHANGE TICKETS STATUS
 // =====================
 export const changeTicketStatus = async (req, res) => {
