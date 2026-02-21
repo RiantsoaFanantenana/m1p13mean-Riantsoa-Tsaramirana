@@ -54,8 +54,8 @@ Connexion d’un client.
 
 ```json
 {
-  "email": "client@example.com",
-  "password": "password123"
+  "email": "admin@mall.com",
+  "password": "admin123"
 }
 ```
 
@@ -142,6 +142,59 @@ Permet d’enregistrer ou de logger les boutiques qui ne sont pas encore configu
 ```
 
 ---
+## 🏪 Données dashboard
+
+### `GET /api/admin/revenues-expenditures`
+
+Permet de récupérer les revenues et les dépenses totaux
+
+#### Exemple de réponse
+
+```json
+{
+  "totalExpenditure": 120 000,
+  "totalRevenue": 200 000
+}
+```
+
+### `GET /api/admin/revenues-details`
+
+Permet de les revenues totaux pa catégorie (Loyer, Abonnement)
+
+#### Exemple de réponse
+
+```json
+{
+  "totalExpenditure": 120 000,
+  "totalRevenue": 200 000
+}
+```
+
+### `GET /api/admin//revenues-expenditures`
+
+Permet de récupérer les revenues et les dépenses totaux
+
+#### Exemple de réponse
+
+```json
+{
+  "totalExpenditure": 120 000,
+  "totalRevenue": 200 000
+}
+```
+### `GET /api/admin//revenues-expenditures`
+
+Permet de récupérer les revenues et les dépenses totaux
+
+#### Exemple de réponse
+
+```json
+{
+  "totalExpenditure": 120 000,
+  "totalRevenue": 200 000
+}
+```
+
 
 ## 🔐 Sécurité
 

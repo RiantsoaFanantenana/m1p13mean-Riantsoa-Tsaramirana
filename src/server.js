@@ -3,7 +3,7 @@ import 'dotenv/config'; // équivalent de require("dotenv").config()
 import express from 'express';
 import cors from 'cors';
 import connectDB from './config/db.js';
-import seedData from './config/seeds.js';
+import {seedAdminUser, seedData} from './config/seeds.js';
 import seedBoxes from './config/box.seeds.js';
 import { populateReferenceIds } from './config/referenceIds.js';
 
@@ -27,7 +27,8 @@ app.use('/api/admin', adminRoutes); // routes admin
 app.use('/api/shop', shopRoutes); 
 app.use('/api/config', configRoutes); // routes de configuration
 // seed et cache des _id
-await seedData();     
+await seedData(); 
+await seedAdminUser();    
 await seedBoxes();      
 await populateReferenceIds(); 
 

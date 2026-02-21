@@ -1,8 +1,58 @@
-const UserType = require("../models/user/UserType");
-const ShopType = require("../models/shop/ShopType");
-const SubscriptionType = require("../models/mall/SubscriptionType");
+import UserType from '../models/user/UserType.js';
+import User from '../models/user/User.js';
+import ShopType from '../models/shop/ShopType.js';
+import SubscriptionType from '../models/mall/SubscriptionType.js';
+import Configuration from '../models/misc/Configuration.js';
+import {hashPassword} from '../util/password.util.js';
 
-const seedData = async () => {
+export const seedAdminUser = async () => {
+  try {
+    console.log("🔹 Seeding admin user...");
+
+    // 1️⃣ Vérifier que le UserType admin existe
+    const adminUserType = await UserType.findOne({ name: "admin" });
+
+    if (!adminUserType) {
+      throw new Error("UserType 'admin' not found. Seed UserTypes first.");
+    }
+
+    // 2️⃣ Vérifier si l'utilisateur existe déjà
+    const existingUser = await User.findOne({ email: "admin@mall.com" });
+
+    if (!existingUser) {
+      console.log("➕ Creating admin user...");
+
+      // 3️⃣ Hash password
+      const hashedPassword = "admin123";
+
+      await User.create({
+        email: "admin@mall.com",
+        password: hashedPassword,
+        userType: adminUserType._id,
+        isConfigured: true
+      });
+
+      console.log("✅ Admin user created successfully.");
+
+    } else {
+      console.log("🔄 Admin user already exists. Updating fields...");
+
+      // 4️⃣ Update sans toucher au password
+      existingUser.userType = adminUserType._id;
+      existingUser.isConfigured = true;
+
+      await existingUser.save();
+
+      console.log("✅ Admin user updated.");
+    }
+
+  } catch (err) {
+    console.error("❌ Error seeding admin user:", err.message);
+    throw err;
+  }
+}
+
+export const seedData = async () => {
   // -------- UserType --------
   const userTypes = ["admin", "shop", "client"];
   for (const name of userTypes) {
@@ -10,23 +60,6 @@ const seedData = async () => {
       { name },
       { name },
       { upsert: true } // crée si pas existant
-    );
-  }
-
-  // User
-  const users = [
-    {
-      "email": "admin@mall.com",
-      "password": "admin123",
-      "userType": UserType.findOne({ name: "admin" })._id,
-      "isConfigured": true
-    }
-  ];
-  for (const userData of users) {
-    await User.updateOne(
-      { email: userData.email },
-      userData,
-      { upsert: true }
     );
   }
   
@@ -101,5 +134,3 @@ const seedData = async () => {
   );
   console.log("✅ Seed data completed");
 };
-
-module.exports = seedData;

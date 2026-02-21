@@ -2,15 +2,42 @@
 import User from '../models/user/User.js'
 import ShopProfile from '../models/shop/ShopProfile.js';
 import BoxTicket from '../models/mall/BoxTicket.js';
-import {createShopWithContract, getRevenuesAndExpenditures, getRevenueDetails } from '../services/admin.services.js';
+import {createShopWithContract, getRevenuesAndExpenditures, getRevenueDetails, getExpenditureDetails } from '../services/admin.services.js';
+import {getShopsWithCloseContractEnd, alertContractsEndingSoon, acceptPayement} from '../services/admin.services.js';
+
+// =====================
+// ALERT CONTRACTS ENDING SOON
+// =====================
+export const alertContractsEndingSoonController = async (req, res) => {
+  try {
+    const contracts = await getShopsWithCloseContractEnd();
+    await alertContractsEndingSoon(contracts);
+    res.json({ message: "Alerts sent successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// =====================
+// GET Shops with close contract end
+// =====================
+export const getShopsWithCloseContractEndController = async (req, res) => {
+  try {
+    const { daysBeforeEnd } = req.query;
+    const shops = await getShopsWithCloseContractEnd(daysBeforeEnd);
+    res.json(shops);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 // =====================
 // GET EXPENDITURES DETAILS IN A PERIOD OF TIME
 // =====================
-export const getExpenditureDetails = async (req, res) => {
+export const getExpendituresDetailsController = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const expenditures = await getExpenditureDetailsService(startDate, endDate);
+    const expenditures = await getExpenditureDetails(startDate, endDate);
     res.json(expenditures);
   }catch (err) {
     res.status(500).json({ message: err.message });
@@ -20,7 +47,7 @@ export const getExpenditureDetails = async (req, res) => {
 // =====================
 // GET REVENUES DETAILS IN A PERIOD OF TIME
 // =====================
-export const getRentRevenuesDetails = async (req, res) => {
+export const getRevenuesDetailsController = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     const revenues = await getRevenueDetails(startDate, endDate);
@@ -34,7 +61,7 @@ export const getRentRevenuesDetails = async (req, res) => {
 // =====================
 // GET REVENUES AND EXPENDITURES IN A PERIOD OF TIME
 // =====================
-export const getRevenuesAndExpenditures = async (req, res) => {
+export const getRevenuesAndExpendituresController = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     const data = await getRevenuesAndExpenditures(startDate, endDate);

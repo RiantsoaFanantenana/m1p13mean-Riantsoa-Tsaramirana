@@ -2,11 +2,11 @@ import User from '../models/user/User.js';
 import ShopProfile from '../models/shop/ShopProfile.js';
 import Contract from '../models/mall/Contract.js';
 import crypto from 'crypto';
-import Payement from "../models/Payement.js";
-import Expenditure from "../models/Expenditure.js";
+import Payement from "../models/shop/Payement.js";
+import Expenditure from "../models/misc/Expenditure.js";
 import { sendEmail } from './email.services.js';
 import { referenceIds } from '../config/referenceIds.js';
-import { buildDateFilter } from "../utils/date.util.js";
+import { buildDateFilter } from "../util/date.util.js";
 
 // ACCEPT PAYEMENT PROOF (ADMIN ONLY)
 export const acceptPayement = async (payementId) => {
@@ -77,7 +77,7 @@ export const getShopsWithCloseContractEnd = async (daysBeforeEnd) => {
 };
 
 // EXPENDITURES DETAILS
-export const getExpenditureDetailsService = async (startDate, endDate) => {
+export const getExpenditureDetails = async (startDate, endDate) => {
   const dateFilter = buildDateFilter(startDate, endDate);
   const matchStage = {};
 

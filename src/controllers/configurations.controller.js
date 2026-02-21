@@ -1,4 +1,4 @@
-import { getConfigurationItems } from "../services/config.service.js";
+import { getConfigurationItems } from "../services/config.services.js";
 
 export const getConfigTable = async (req, res) => {
   try {
