@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Configuration from "../models/Configuration.js";
+import Configuration from "../models/misc/Configuration.js";
 
 export const getConfigurationItems = async (tableName) => {
 
