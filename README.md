@@ -159,39 +159,58 @@ Permet de récupérer les revenues et les dépenses totaux
 
 ### `GET /api/admin/revenues-details`
 
-Permet de les revenues totaux pa catégorie (Loyer, Abonnement)
+Permet de les revenues totaux par catégorie (Loyer, Abonnement)
 
 #### Exemple de réponse
 
 ```json
 {
-  "totalExpenditure": 120 000,
-  "totalRevenue": 200 000
+  [
+    {
+      "_id": "Loyer",
+      "totalAmount": "1 500 000"
+    }
+  ]
 }
 ```
 
-### `GET /api/admin//revenues-expenditures`
+### `GET /api/admin/expenditures-details`
 
-Permet de récupérer les revenues et les dépenses totaux
+Permet de récupérer les dépenses par catégorie
 
 #### Exemple de réponse
 
 ```json
 {
-  "totalExpenditure": 120 000,
-  "totalRevenue": 200 000
+  [
+    {
+      "_id": "Réparation",
+      "totalAmount": "1 500 000"
+    }
+  ]
 }
 ```
-### `GET /api/admin//revenues-expenditures`
+### `GET /api/admin/shops-close-contract-end?daysBeforeEnd=7`
 
-Permet de récupérer les revenues et les dépenses totaux
+Permet de récupérer la liste des contrats qui s'expireront dans x jours
 
 #### Exemple de réponse
 
 ```json
 {
-  "totalExpenditure": 120 000,
-  "totalRevenue": 200 000
+  [
+    {
+      "shop": {
+        "user": "id",
+        "shopType": "id_shop_type",
+        "box": "box_id",
+        "shopName": "ShopName",
+      },
+      "startDate": "date",
+      "duration": "duration",
+      "endDate": "endDate";
+    }
+  ]
 }
 ```
 

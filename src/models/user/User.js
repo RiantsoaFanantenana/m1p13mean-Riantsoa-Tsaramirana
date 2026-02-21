@@ -16,7 +16,7 @@ const UserSchema = new mongoose.Schema({
 
 // Hook pour hasher le mot de passe automatiquement avant la sauvegarde
 UserSchema.pre("save", async function(next) {
-  if (!this.isModified("password")) return next(); // ne hash que si le password est nouveau ou modifié
+  if (!this.isModified("password")) return; // ne hash que si le password est nouveau ou modifié
   try {
     const hashed = await bcrypt.hash(this.password, SALT_ROUNDS);
     this.password = hashed;

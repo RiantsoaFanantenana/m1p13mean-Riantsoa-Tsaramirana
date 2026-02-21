@@ -4,6 +4,7 @@ import Contract from '../models/mall/Contract.js';
 import crypto from 'crypto';
 import Payement from "../models/shop/Payement.js";
 import Expenditure from "../models/misc/Expenditure.js";
+import Configuration from '../models/misc/Configuration.js';
 import { sendEmail } from './email.services.js';
 import { referenceIds } from '../config/referenceIds.js';
 import { buildDateFilter } from "../util/date.util.js";
