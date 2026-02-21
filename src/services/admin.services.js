@@ -8,6 +8,7 @@ import Configuration from '../models/misc/Configuration.js';
 import { sendEmail } from './email.services.js';
 import { referenceIds } from '../config/referenceIds.js';
 import { buildDateFilter } from "../util/date.util.js";
+import {generateInvoicePDF} from "./pdf.services.js"
 
 // ACCEPT PAYEMENT PROOF (ADMIN ONLY)
 export const acceptPayement = async (payementId) => {

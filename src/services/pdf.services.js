@@ -32,11 +32,11 @@ export const generateInvoicePDF = async (payement) => {
       doc.moveDown();
 
       doc.text("Détails des charges payées:");
-      payement.charges.forEach((charge) => {
+      payement.chargeDetails.forEach((charge) => {
         doc.text(`- ${charge.name}: ${charge.amount.toLocaleString()} Ar`);
       });
 
-      const total = payement.charges.reduce(
+      const total = payement.chargeDetails.reduce(
         (sum, c) => sum + c.amount,
         0
       );
