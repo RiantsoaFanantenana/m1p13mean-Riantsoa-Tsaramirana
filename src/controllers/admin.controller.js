@@ -2,19 +2,49 @@
 import User from '../models/user/User.js'
 import ShopProfile from '../models/shop/ShopProfile.js';
 import BoxTicket from '../models/mall/BoxTicket.js';
-import {createShopWithContract} from '../services/admin.services.js';
+import {createShopWithContract, getRevenuesAndExpenditures, getRevenueDetails } from '../services/admin.services.js';
 
 // =====================
-// GET RENT REVENUES IN A PERIOD OF TIME
+// GET EXPENDITURES DETAILS IN A PERIOD OF TIME
 // =====================
-export const getRentRevenues = async (req, res) => {
+export const getExpenditureDetails = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-  }
-  catch (err) {
+    const expenditures = await getExpenditureDetailsService(startDate, endDate);
+    res.json(expenditures);
+  }catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
+// =====================
+// GET REVENUES DETAILS IN A PERIOD OF TIME
+// =====================
+export const getRentRevenuesDetails = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const revenues = await getRevenueDetails(startDate, endDate);
+    res.json(revenues);
+  }
+    catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// =====================
+// GET REVENUES AND EXPENDITURES IN A PERIOD OF TIME
+// =====================
+export const getRevenuesAndExpenditures = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const data = await getRevenuesAndExpenditures(startDate, endDate);
+    res.json(data);
+  }
+   catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // =====================
 // CHANGE TICKETS STATUS
 // =====================

@@ -13,6 +13,23 @@ const seedData = async () => {
     );
   }
 
+  // User
+  const users = [
+    {
+      "email": "admin@mall.com",
+      "password": "admin123",
+      "userType": UserType.findOne({ name: "admin" })._id,
+      "isConfigured": true
+    }
+  ];
+  for (const userData of users) {
+    await User.updateOne(
+      { email: userData.email },
+      userData,
+      { upsert: true }
+    );
+  }
+  
   // -------- ShopType --------
   const shopTypes = ["clothing", "electronics", "food", "books", "home", "sports", "beauty", "toys", "automotive", "health", "jewelry", "music", "office", "pet", "garden", "baby", "art", "handmade", "grocery", "furniture"];
   for (const name of shopTypes) {
@@ -49,12 +66,39 @@ const seedData = async () => {
         {
           alias: "subscription-types",
           model: "SubscriptionType"
+        },
+        {
+          alias: "boxes",
+          model: "Box"
+        },
+                {
+          alias: "opening-hours",
+          model: "OpeningHour"
+        },
+        {
+          alias: "subscriptions",
+          model: "Subscriptions"
         }
       ]
     },
     { upsert: true }
   );
 
+  // / -------- Business Configurations --------
+
+  // J-7 par défaut avant expiration
+  await Configuration.updateOne(
+    { key: "contract_alert_days" },
+    { key: "contract_alert_days", value: 7 },
+    { upsert: true }
+  );
+
+  // Jour limite paiement loyer (ex : 5 du mois)
+  await Configuration.updateOne(
+    { key: "limit_rent_payment_day" },
+    { key: "limit_rent_payment_day", value: 5 },
+    { upsert: true }
+  );
   console.log("✅ Seed data completed");
 };
 
