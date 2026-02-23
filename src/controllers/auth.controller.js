@@ -6,33 +6,61 @@ import { referenceIds } from '../config/referenceIds.js';
 // =====================
 // LOGIN (client / shop / admin)
 // =====================
+// backend/controllers/auth.controller.js ou votre fichier de contrôleur
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(401).json({ message: "Invalid email" });
+  try {
+    const user = await User.findOne({ email }).populate('userType'); // N'oubliez pas populate pour avoir les détails du userType
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email" });
+    }
+
+    if (user.isConfigured === false) {
+      return res.status(403).json({ message: "Account not configured. Please check your email for configuration instructions." });
+    }
+
+    const isValid = await user.comparePassword(password);
+    if (!isValid) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    // Sécuriser la récupération du rôle avec une valeur par défaut
+    let userRole = 'client'; // Défaut à 'client'
+    
+    if (user.userType && user.userType.name) {
+      userRole = user.userType.name;
+      console.log('Rôle trouvé dans userType:', userRole);
+    } else {
+      console.log('userType non trouvé, utilisation de client par défaut');
+      
+      // Optionnel: essayer de déterminer le rôle depuis l'email
+      if (email === 'admin@mall.com') {
+        userRole = 'admin';
+      } else if (email === 'shop@example.com') {
+        userRole = 'shop';
+      }
+    }
+
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        role: userRole,
+        email: user.email // Ajouter l'email peut être utile
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    console.log('Token généré avec rôle:', userRole);
+    console.log('Token:', token);
+
+    res.json({ token });
+    
+  } catch (error) {
+    console.error('Erreur login:', error);
+    res.status(500).json({ message: "Erreur serveur" });
   }
-
-  if (user.isConfigured === false) {
-    return res.status(403).json({ message: "Account not configured. Please check your email for configuration instructions." });
-  }
-
-  const isValid = await user.comparePassword(password);
-  if (!isValid) {
-    return res.status(401).json({ message: "Invalid password" });
-  }
-
-  const token = jwt.sign(
-    {
-      userId: user._id,
-      role: user.userType.name
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" }
-  );
-
-  res.json({ token });
 };
 
 // =====================
