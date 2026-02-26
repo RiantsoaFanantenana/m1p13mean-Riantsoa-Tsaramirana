@@ -1,6 +1,42 @@
 import { completeShopConfiguration } from "../services/shop.services.js";
 import {generateConfigToken} from "../services/shop.services.js";
 import User from "../models/user/User.js";
+import ShopProfile from "../models/shop/ShopProfile.js";
+
+// MODIFY PROFILE
+export const updateVisualIdentity = async (req, res) => {
+  try {
+    const { shopId } = req.params;
+
+    const {
+      logo,
+      coverPic,
+      description
+    } = req.body;
+
+    const updatedShop = await ShopProfile.findByIdAndUpdate(
+      shopId,
+      {
+        logo,
+        coverPic,
+        description
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedShop) {
+      return res.status(404).json({ message: "Shop not found" });
+    }
+
+    res.status(200).json({
+      message: "Visual identity updated successfully",
+      data: updatedShop
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // configure shop
 export const configureShop = async (req, res) => {
