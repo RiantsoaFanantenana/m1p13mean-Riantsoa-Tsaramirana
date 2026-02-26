@@ -185,6 +185,16 @@ export const getRevenuesAndExpenditures = async (startDate, endDate) => {
 // SHOP REGISTRATION (ADMIN ONLY)
 export const createShopWithContract = async ({ shopName, email, shopType, duration, startDate, boxId }) => {
 
+  const box = await Box.findOneAndUpdate(
+    { _id: boxId, isAvailable: true },
+    { isAvailable: false },
+    { new: true }
+  );
+
+  if (!box) {
+    throw new Error("Box already occupied or not found");
+  }
+
   // 1️) Generate a random password for the shop owner
   const generatedPassword = crypto.randomBytes(6).toString('hex'); 
 
@@ -211,6 +221,7 @@ export const createShopWithContract = async ({ shopName, email, shopType, durati
     duration,
     box: boxId
   });
+
 
   // 5️) Send an email to the shop owner with their credentials and a link to configure their account
   const configLink = process.env.ACCOUNT_CONFIGURATION_LINK;

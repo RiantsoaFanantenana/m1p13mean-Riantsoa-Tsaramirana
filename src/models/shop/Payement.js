@@ -5,6 +5,13 @@ const PayementSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
     status: { type: String, enum: ['review', 'accepted', 'rejected'], default: 'review' },
     invoicePath: String,
+    periods : [
+        {
+            month : {type: Number, required: true },
+            year : {type: Number, required: true}
+        }
+    ],
+    
     charges: [
         {
             charge: { type: mongoose.Schema.Types.ObjectId, ref: 'Charge', required: true },

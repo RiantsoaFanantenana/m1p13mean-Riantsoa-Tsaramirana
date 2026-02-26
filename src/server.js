@@ -4,7 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import {seedAdminUser, seedData} from './config/seeds.js';
-import seedBoxes from './config/box.seeds.js';
+import {seedBoxes} from './config/box.seeds.js';
 import { populateReferenceIds } from './config/referenceIds.js';
 
 import authRoutes from './routes/auth.routes.js';
