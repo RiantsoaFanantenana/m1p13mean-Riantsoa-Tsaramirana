@@ -4,6 +4,8 @@ import { configTokenMiddleware } from "../middlewares/verifyConfigToken.middlewa
 import { logUnconfigured } from "../controllers/shop.controller.js";
 
 const router = express.Router();
+// PATCH /api/shop/visual-identity/:shopId
+router.patch("/visual-identity/:shopId", updateVisualIdentity);
 
 // PATCH /api/shop/configure
 router.patch("/configure", configTokenMiddleware, configureShop);
