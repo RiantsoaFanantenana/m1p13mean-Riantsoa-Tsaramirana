@@ -14,6 +14,9 @@ router.patch("/configure", configTokenMiddleware, shopController.configureShop);
 router.use(authenticate);
 router.use(authorize("shop"));
 
+// POST api/shop/create-coupon
+router.post("/create-coupon", shopController.createCoupon);
+
 // POST api/shop/pay
 router.post("/pay", shopController.payShopCharges);
 
