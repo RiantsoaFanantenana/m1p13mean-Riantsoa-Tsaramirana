@@ -1,7 +1,14 @@
-const express = require("express");
-const router = express.Router();
+import express from "express";
+import * as adminController from "../controllers/admin.controller.js";
+import { authenticate } from "../middlewares/auth.middleware.js";
+import { authorize } from "../middlewares/role.middleware.js";
 
-const adminController = require("../controllers/admin.controller");
+const router = express.Router();
+router.use(authenticate);
+router.use(authorize("admin"));
+
+// GET api/admin/accept-payement/:payementId
+router.get("/accept-payement/:payementId", adminController.acceptPayementController);
 
 // GET /api/admin/alert-contracts-ending-soon
 router.get("/alert-contracts-ending-soon", adminController.alertContractsEndingSoonController);
@@ -20,4 +27,4 @@ router.get("/revenues-expenditures", adminController.getRevenuesAndExpendituresC
 // POST /api/admin/register-shop
 router.post("/register-shop", adminController.registerShop);
 
-module.exports = router;
+export default router;
