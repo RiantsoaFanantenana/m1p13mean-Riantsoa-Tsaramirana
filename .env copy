@@ -1,0 +1,14 @@
+PORT=3000
+# Pour Docker, utilisez le nom du service (mongo_db)
+MONGO_URI=mongodb://mongo_db:27017/mastermall
+JWT_SECRET=7VHEM8KmhoztlQc3B1metp7miAFBo6TBun7g23CBkXi
+# MONGO_URI=mongodb://mongo:27017/authdb
+
+# Email configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=tsaramiranaandriambelo@gmail.com
+SMTP_PASS=ryma tngh sbgb vjzh
+
+# Account configuration link
+ACCOUNT_CONFIGURATION_LINK=http://localhost:3000/api/configure-account

@@ -4,32 +4,48 @@ import Contract from '../models/mall/Contract.js';
 import crypto from 'crypto';
 import Payement from "../models/shop/Payement.js";
 import Expenditure from "../models/misc/Expenditure.js";
+import ExpenditureType from "../models/misc/ExpenditureType.js";
+import Box from "../models/mall/Box.js";
 import Configuration from '../models/misc/Configuration.js';
-import { sendEmail } from './email.services.js';
+import { sendEmail, sendInvoiceEmail } from './email.services.js';
 import { referenceIds } from '../config/referenceIds.js';
 import { buildDateFilter } from "../util/date.util.js";
-import {generateInvoicePDF} from "./pdf.services.js"
+import {generateInvoicePDF} from "./pdf.services.js";
+import MonthlyChargeStatus from '../models/shop/MonthlyChargeStatus.js';
 
-// ACCEPT PAYEMENT PROOF (ADMIN ONLY)
+// // ACCEPT PAYEMENT PROOF (ADMIN ONLY)
 export const acceptPayement = async (payementId) => {
   const payement = await Payement.findById(payementId)
-    .populate("shop")    
-    .populate("charge");   
+    .populate({
+      path: "shop",
+      populate: {
+        path: "user"
+      }
+    })  
+    .populate("charges.charge");
 
   if (!payement) throw new Error("Payement not found");
+
+  payement.periods.forEach(period => {
+    MonthlyChargeStatus.updateOne(
+      { shop: payement.shop._id, month: period.month, year: period.year },
+      { status: "paid" }
+    );
+  });
 
   payement.status = "accepted";
   await payement.save();
 
-  const chargeDetails = [payement.charge].map((c) => ({
-    name: c.name,
-    amount: payement.amount,
+  const chargeDetails = payement.charges.map((c) => ({
+    name: c.charge.name,
+    amount: c.amount,
   }));
 
   payement.chargeDetails = chargeDetails; 
 
   const pdfPath = await generateInvoicePDF(payement);
 
+  console.log(payement);
   await sendInvoiceEmail(payement.shop.user.email, payement, pdfPath);
 
   return payement;
@@ -225,11 +241,17 @@ export const createShopWithContract = async ({ shopName, email, shopType, durati
 
   // 5️) Send an email to the shop owner with their credentials and a link to configure their account
   const configLink = process.env.ACCOUNT_CONFIGURATION_LINK;
-  await sendEmail(email, 'Configuration de votre boutique', `
-    Bonjour ${shopName},
-    Votre compte a été créé. Voici votre mot de passe temporaire : ${generatedPassword}
-    Cliquez sur ce lien pour configurer votre compte : ${configLink}
-  `);
+  // répondre immédiatement
+  const result = { user, shopProfile, contract };
 
-  return { user, shopProfile, contract };
+  // envoyer email en arrière-plan
+  process.nextTick(() => {
+    sendEmail(email, 'Configuration de votre boutique', `
+      Bonjour ${shopName},
+      Votre mot de passe temporaire : ${generatedPassword}
+      Lien : ${configLink}
+    `).catch(console.error);
+  });
+
+  return result;
 };

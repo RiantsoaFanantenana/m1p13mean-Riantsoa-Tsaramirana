@@ -22,6 +22,7 @@ const initTransporter = async () => {
 };
 
 export const sendInvoiceEmail = async (to, payement, pdfPath) => {
+  console.log(`Preparing to send invoice email to ${to} for payement ID ${payement._id}`);
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,

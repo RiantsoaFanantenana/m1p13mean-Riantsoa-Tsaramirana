@@ -4,6 +4,7 @@ import ShopType from '../models/shop/ShopType.js';
 import SubscriptionType from '../models/mall/SubscriptionType.js';
 import Configuration from '../models/misc/Configuration.js';
 import {hashPassword} from '../util/password.util.js';
+import Charge from '../models/misc/Charge.js';
 
 export const seedAdminUser = async () => {
   try {
@@ -86,6 +87,19 @@ export const seedData = async () => {
     );
   }
 
+  
+  // Charges
+  const chargesConfig = [
+    { name: "rent", month_frequencey : 1, unit_price: 1000 },
+    { name: "subscription", month_frequencey : 1, unit_price: 200 },
+  ];
+  for (const charge of chargesConfig) {
+    await Charge.updateOne(
+      { name: charge.name },
+      { name: charge.name, month_frequencey: charge.month_frequencey, unit_price: charge.unit_price },
+      { upsert: true }
+    );
+  }
   // -------- Configuration (Allowed Config Tables) --------
   await Configuration.updateOne(
     { key: "allowed_config_tables" },
