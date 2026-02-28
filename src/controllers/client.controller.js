@@ -1,6 +1,28 @@
 import FavoriteShop from "../models/client/FavoriteShop.js";
 import Wallet from "../models/client/Wallet.js";
 import Reviews from "../models/shop/Reviews.js";
+import { redeemCoupon } from "../services/client.services.js";
+
+// Redeem coupon
+export const redeemCouponController = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { shopId, code } = req.query;
+    const coupon = await redeemCoupon(userId, shopId, code);
+    res.json(coupon);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Show wallet
+export const showWallet = async (req, res) => {
+  const userId = req.user.id;
+
+  const wallet = await Wallet.findOne({ user: userId });
+
+  res.json(wallet);
+};
 
 // Add review for a shop
 export const addReview = async (userId, shopId, stars, description) => {
@@ -12,15 +34,17 @@ export const addReview = async (userId, shopId, stars, description) => {
   return review;
 };
 
-// Add coupon to wallet
-export const addCouponToWallet = async (userId, couponId) => {
-  const wallet = await Wallet.findOne({ user: userId }) || await Wallet.create({ user: userId });
-  if (!wallet.coupons.includes(couponId)) {
-    wallet.coupons.push(couponId);
-    await wallet.save();
-  }
-  return wallet;
+
+// Get favorites
+export const getFavorites = async (req, res) => {
+  const userId = req.user.id;
+
+  const favorites = await Favorite.find({ user: userId })
+    .populate("shop");
+
+  res.json(favorites);
 };
+
 // Add shop to favorites
 export const addFavoriteShop = async (userId, shopId) => {
   try {

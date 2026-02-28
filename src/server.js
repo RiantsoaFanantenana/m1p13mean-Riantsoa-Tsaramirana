@@ -11,6 +11,8 @@ import authRoutes from './routes/auth.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import shopRoutes from './routes/shop.routes.js';
 import configRoutes from './routes/config.routes.js';
+import generalRoutes from './routes/general.route.js';
+import clientRoutes from './routes/client.route.js';
 
 import { startMonthlyChargeCron } from './cron/monthlyCharge.cron.js';
 import { ensureCurrentMonthGenerated } from './services/monthlyCharge.generator.js';
@@ -36,6 +38,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/general', generalRoutes);
+app.use('/api/client', clientRoutes);
 
 // seed et cache des _id
 await seedData();
