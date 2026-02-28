@@ -207,24 +207,6 @@ export const getValidCoupons = async (shopId) => {
 };
 
 /**
- * Marque un coupon comme utilisé
- */
-export const redeemCoupon = async (shopId, code) => {
-  const coupon = await Coupon.findOne({
-    shop: shopId,
-    code,
-    status: "active"
-  });
-
-  if (!coupon) throw new Error("Coupon invalide ou expiré");
-
-  coupon.status = "used";
-  await coupon.save();
-
-  return coupon;
-};
-
-/**
  * Génère le JWT temporaire de configuration
  */
 export const generateConfigToken = (userId) => {
