@@ -206,7 +206,7 @@ Permet à un shop d'effectuer un paiement pour une ou plusieurs périodes.
   * **Loyer** → `unit_price × superficie du box`
   * **Abonnement** → `unit_price × 1`
 * Création automatique des `MonthlyChargeStatus` manquants
-* Statut initial du paiement : `pending`
+* Statut initial du paiement : `review`
 
 ---
 
@@ -343,8 +343,8 @@ Publier un avis sur une boutique.
 
 ```json
 {
-  "stars": 4,
-  "description": "Très bonne boutique !"
+  "rating": 4,
+  "comment": "Très bonne boutique !"
 }
 ```
 
@@ -363,6 +363,29 @@ Ajouter une boutique aux favoris.
 ### Paramètre URL
 
 * `shopId` : ID de la boutique à ajouter aux favoris
+
+---
+
+# ⚙️ Configuration
+
+> Route accessible aux rôles `admin`, `shop` et `customer`. Nécessite une authentification.
+
+## `GET /api/configurations/:tableName`
+
+Récupérer les données d'une table de configuration.
+
+### Paramètre URL
+
+* `tableName` : Nom de la table de configuration à consulter
+
+### Réponse (exemple)
+
+```json
+{
+  "status": "success",
+  "data": { }
+}
+```
 
 ---
 
