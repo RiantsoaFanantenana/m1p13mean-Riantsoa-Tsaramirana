@@ -1,4 +1,3 @@
-```md
 # 📦 m1p13mean – Riantsoa Tsaramirana  
 **Projet Final – Master 1 | Mars 2026**
 
@@ -10,25 +9,23 @@ API REST développée dans le cadre du projet final de Master 1.
 
 Cette application permet :
 
-- 🔐 L’authentification des clients  
-- 🏪 L’enregistrement et la gestion des boutiques  
+- 🔐 L'authentification des clients  
+- 🏪 L'enregistrement et la gestion des boutiques  
 - ⚙️ La configuration initiale des shops  
 - 💳 Le paiement des charges mensuelles  
 - 🎟 La gestion des coupons  
-- 📅 La création d’événements  
+- 📅 La création d'événements  
 - 📊 Le suivi financier et contractuel  
 
-L’API est conçue selon une architecture RESTful avec séparation claire des responsabilités (routes, contrôleurs, modèles, middleware).
+L'API est conçue selon une architecture RESTful avec séparation claire des responsabilités (routes, contrôleurs, modèles, middleware).
 
 ---
 
 ## 🚀 Base URL
 
 ```
-
-[http://localhost:3000/api](http://localhost:3000/api)
-
-````
+http://localhost:3000/api
+```
 
 ---
 
@@ -36,7 +33,7 @@ L’API est conçue selon une architecture RESTful avec séparation claire des r
 
 ## `POST /api/auth/register`
 
-Inscription d’un client.
+Inscription d'un client.
 
 ### Body (JSON)
 
@@ -45,13 +42,13 @@ Inscription d’un client.
   "email": "client@example.com",
   "password": "password123"
 }
-````
+```
 
 ---
 
 ## `POST /api/auth/login`
 
-Connexion d’un utilisateur.
+Connexion d'un utilisateur.
 
 ### Body (JSON)
 
@@ -105,7 +102,7 @@ Créer et enregistrer une nouvelle boutique.
 
 ## `GET /api/admin/accept-payement/:payementId`
 
-Permet à l’administrateur d’accepter un paiement effectué par un shop.
+Permet à l'administrateur d'accepter un paiement effectué par un shop.
 
 ### Paramètre URL
 
@@ -150,7 +147,7 @@ Retourne la liste des contrats arrivant bientôt à expiration.
 
 ## `PATCH /api/shop/configure`
 
-Configuration initiale d’un shop après création.
+Configuration initiale d'un shop après création.
 
 ### Body (JSON)
 
@@ -185,7 +182,7 @@ Permet de logger les boutiques non configurées.
 
 ## `POST /api/shop/pay`
 
-Permet à un shop d’effectuer un paiement pour une ou plusieurs périodes.
+Permet à un shop d'effectuer un paiement pour une ou plusieurs périodes.
 
 ### Body (JSON)
 
@@ -209,7 +206,7 @@ Permet à un shop d’effectuer un paiement pour une ou plusieurs périodes.
   * **Loyer** → `unit_price × superficie du box`
   * **Abonnement** → `unit_price × 1`
 * Création automatique des `MonthlyChargeStatus` manquants
-* Statut initial du paiement : `review`
+* Statut initial du paiement : `pending`
 
 ---
 
@@ -248,6 +245,124 @@ Permet à un shop de créer un événement.
   "location": "Mall Central"
 }
 ```
+
+---
+
+# 🌐 Routes Générales
+
+> Toutes ces routes nécessitent une authentification (`Authorization: Bearer <token>`).
+
+## `GET /api/shops/search`
+
+Rechercher des boutiques.
+
+### Query params (exemple)
+
+```
+?q=tech&type=electronics
+```
+
+---
+
+## `GET /api/shops/:shopId`
+
+Récupérer le profil d'une boutique.
+
+### Paramètre URL
+
+* `shopId` : ID de la boutique
+
+---
+
+## `GET /api/shops/group/:groupName`
+
+Récupérer les boutiques appartenant à un groupe.
+
+### Paramètre URL
+
+* `groupName` : Nom du groupe
+
+---
+
+## `GET /api/events`
+
+Récupérer tous les événements.
+
+---
+
+## `GET /api/shops/:shopId/reviews`
+
+Récupérer les avis d'une boutique.
+
+### Paramètre URL
+
+* `shopId` : ID de la boutique
+
+---
+
+## `GET /api/shops/:shopId/events`
+
+Récupérer les événements d'une boutique.
+
+### Paramètre URL
+
+* `shopId` : ID de la boutique
+
+---
+
+# 👤 Routes Client
+
+> Toutes ces routes nécessitent une authentification et le rôle `client`.
+
+## `GET /api/client/redeem-coupon/:shopId/:code`
+
+Utiliser un coupon promotionnel.
+
+### Paramètres URL
+
+* `shopId` : ID de la boutique
+* `code` : Code du coupon
+
+---
+
+## `GET /api/client/wallet`
+
+Consulter le portefeuille du client connecté.
+
+---
+
+## `POST /api/client/post-review/:shopId`
+
+Publier un avis sur une boutique.
+
+### Paramètre URL
+
+* `shopId` : ID de la boutique
+
+### Body (JSON)
+
+```json
+{
+  "stars": 4,
+  "description": "Très bonne boutique !"
+}
+```
+
+---
+
+## `GET /api/client/get-favorites`
+
+Récupérer la liste des boutiques favorites du client.
+
+---
+
+## `POST /api/client/add-shop-favorite/:shopId`
+
+Ajouter une boutique aux favoris.
+
+### Paramètre URL
+
+* `shopId` : ID de la boutique à ajouter aux favoris
 
 ---
 
@@ -302,7 +417,7 @@ Dépenses groupées par catégorie.
 * Middleware de protection des routes sensibles
 * Validation des données
 * Hash des mots de passe
-* Séparation des rôles (Admin / Shop)
+* Séparation des rôles (Admin / Shop / Client)
 
 ---
 
@@ -371,5 +486,3 @@ Authorization: Bearer <token>
 
 **Riantsoa Tsaramirana**
 Projet académique – Master 1 – 2026
-
-```
