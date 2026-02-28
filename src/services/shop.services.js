@@ -18,19 +18,20 @@ import Charge from "../models/misc/Charge.js";
  */
 export const createShopPayement = async (shopId, periods, chargeIds) => {
   const shop = await ShopProfile.findById(shopId).populate("box");
-
   if (!shop) throw new Error("Boutique introuvable");
 
-  // 1) Vérifier si les périodes sont déjà payées
-  for (const period of periods) {
+  const numberOfPeriods = periods.length;
 
+  /*
+   * 1️⃣ Vérification des MonthlyChargeStatus
+   */
+  for (const period of periods) {
     let monthlyStatus = await MonthlyChargeStatus.findOne({
       shop: shopId,
       month: period.month,
       year: period.year
     });
 
-    // 1️⃣ Si inexistant → on le crée
     if (!monthlyStatus) {
       monthlyStatus = await MonthlyChargeStatus.create({
         shop: shopId,
@@ -40,70 +41,98 @@ export const createShopPayement = async (shopId, periods, chargeIds) => {
       });
     }
 
-    // 2️⃣ Si déjà payé → erreur
     if (monthlyStatus.status === "paid") {
       throw new Error(
         `Le mois ${period.month}/${period.year} est déjà payé`
       );
     }
-
-    // // 3️⃣ Mettre en review et lier au paiement
-    // monthlyStatus.payement = payement._id;
-    // await monthlyStatus.save();
   }
-  // 2) Calculer les montants automatiquement
+
+  /*
+   * 2️⃣ Calcul des charges MULTI-PÉRIODES
+   */
   const charges = [];
+
   for (const chargeId of chargeIds) {
     const charge = await Charge.findById(chargeId);
     if (!charge) throw new Error("Charge introuvable");
 
-    let amount = 0;
+    let baseAmount = 0;
 
+    // Loyer
     if (charge.name.toLowerCase().includes("rent")) {
-      // Loyer = superficie du box * prix unitaire
-      amount = shop.box.surfaceArea * charge.unit_price;
-      console.log(`Calcul loyer: ${shop.box.surfaceArea} m² * ${charge.unit_price} = ${amount}`);
+      baseAmount = shop.box.surfaceArea * charge.unit_price;
     } else {
-      // Autres charges
-      amount = charge.unit_price;
-      console.log(`Charge ${charge.name}: montant fixe = ${amount}`);
+      baseAmount = charge.unit_price;
     }
+
+    /*
+     * Appliquer fréquence
+     * ex: month_frequency = 3 → facturé tous les 3 mois
+     */
+    const effectivePeriods =
+      Math.ceil(numberOfPeriods / charge.month_frequency);
+
+    const totalAmount = baseAmount * effectivePeriods;
 
     charges.push({
       charge: charge._id,
-      amount,
+      amount: totalAmount,
       proofFiles: []
     });
   }
 
-  // 3) Calcul pénalités retard (comme avant)
-  const penaltyConfig = await Configuration.findOne({ key: "late_payment_penalty_per_day" });
-  const penaltyAmount = penaltyConfig ? parseInt(penaltyConfig.value) : 5000;
+  /*
+   * 3️⃣ Calcul pénalités PAR PÉRIODE
+   */
+  const penaltyConfig = await Configuration.findOne({
+    key: "late_payment_penalty_per_day"
+  });
+
+  const penaltyAmount = penaltyConfig
+    ? parseInt(penaltyConfig.value)
+    : 5000;
+
+  const dueDayConfig = await Configuration.findOne({
+    key: "rent_due_day"
+  });
+
+  const dueDay = dueDayConfig
+    ? parseInt(dueDayConfig.value)
+    : 7;
+
   const today = new Date();
-  const periodsWithPenalty = [];
   let totalPenalty = 0;
 
-  const dueDayConfig = await Configuration.findOne({ key: "rent_due_day" });
-  const dueDay = dueDayConfig ? parseInt(dueDayConfig.value) : 7;
+  const periodsWithPenalty = periods.map((period) => {
+    const periodDueDate = new Date(
+      period.year,
+      period.month - 1,
+      dueDay
+    );
 
-  for (const period of periods) {
-    const periodDueDate = new Date(period.year, period.month - 1, dueDay);
     let lateDays = 0;
+    let penalty = 0;
 
     if (today > periodDueDate) {
-      lateDays = Math.floor((today - periodDueDate) / (1000 * 60 * 60 * 24));
-      totalPenalty += lateDays * penaltyAmount;
+      lateDays = Math.floor(
+        (today - periodDueDate) / (1000 * 60 * 60 * 24)
+      );
+      penalty = lateDays * penaltyAmount;
+      totalPenalty += penalty;
     }
 
-    periodsWithPenalty.push({
+    return {
       month: period.month,
       year: period.year,
       lateDays,
-      penalty: lateDays * penaltyAmount
-    });
-  }
+      penalty
+    };
+  });
 
-  // 4) Créer le paiement
+  /*
+   * 4️⃣ Création du paiement
+   */
   const payement = await Payement.create({
     shop: shopId,
     status: "review",
@@ -111,7 +140,11 @@ export const createShopPayement = async (shopId, periods, chargeIds) => {
     charges
   });
 
-  return { payement, totalPenalty, periodsWithPenalty };
+  return {
+    payement,
+    totalPenalty,
+    periodsWithPenalty
+  };
 };
 
 /**
