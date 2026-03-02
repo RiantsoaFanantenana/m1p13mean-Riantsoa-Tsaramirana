@@ -197,6 +197,7 @@ export const seedShops = async () => {
     }
   }
 
+  console.log("✅ Shop users seeded.");
   // -------- Shops --------
 
   const mockShops = [
@@ -251,4 +252,5 @@ export const seedShops = async () => {
       { upsert: true }
     );
   }
+  console.log("✅ Shops seeded.");
 };
