@@ -1,5 +1,7 @@
 import UserType from '../models/user/UserType.js';
 import User from '../models/user/User.js';
+import Box from '../models/mall/Box.js';
+import ShopProfile from '../models/shop/ShopProfile.js';
 import ShopType from '../models/shop/ShopType.js';
 import SubscriptionType from '../models/mall/SubscriptionType.js';
 import Configuration from '../models/misc/Configuration.js';
@@ -53,6 +55,7 @@ export const seedAdminUser = async () => {
     throw err;
   }
 }
+
 
 export const seedData = async () => {
   // -------- UserType --------
@@ -167,4 +170,85 @@ export const seedData = async () => {
     { upsert: true }
   );
   console.log("✅ Seed data completed");
+};
+
+export const seedShops = async () => {
+  // -------- Shop Users --------
+  const shopUserType = await UserType.findOne({ name: "shop" });
+
+  const shopUsers = [
+    { email: "elysian@mall.com" },
+    { email: "stellar@mall.com" },
+    { email: "chocolat@mall.com" },
+    { email: "velvet@mall.com" }
+  ];
+
+  for (const u of shopUsers) {
+
+    const existing = await User.findOne({ email: u.email });
+
+    if (!existing) {
+      await User.create({
+        email: u.email,
+        password: await hashPassword("password123"),
+        userType: shopUserType._id,
+        isConfigured: true
+      });
+    }
+  }
+
+  // -------- Shops --------
+
+  const mockShops = [
+    {
+      email: "elysian@mall.com",
+      shopType: "clothing",
+      boxCode: "BOX-C1",
+      shopName: "Elysian Garments"
+    },
+    {
+      email: "stellar@mall.com",
+      shopType: "jewelry",
+      boxCode: "BOX-B5",
+      shopName: "Stellar Gems"
+    },
+    {
+      email: "chocolat@mall.com",
+      shopType: "food",
+      boxCode: "BOX-A2",
+      shopName: "L'Art du Chocolat"
+    },
+    {
+      email: "velvet@mall.com",
+      shopType: "beauty",
+      boxCode: "BOX-A6",
+      shopName: "Velvet Skin"
+    }
+  ];
+
+  for (const shopData of mockShops) {
+
+    const user = await User.findOne({ email: shopData.email });
+    const type = await ShopType.findOne({ name: shopData.shopType });
+    const box = await Box.findOne({ boxNumber: shopData.boxCode });
+
+    if (!user || !type || !box) {
+      console.log("⚠️ Missing dependency for", shopData.shopName);
+      continue;
+    }
+
+    await ShopProfile.updateOne(
+      { shopName: shopData.shopName },
+      {
+        user: user._id,
+        shopType: type._id,
+        box: box._id,
+        shopName: shopData.shopName,
+        logo: `https://api.dicebear.com/7.x/initials/svg?seed=${shopData.shopName}`,
+        coverPic: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d",
+        description: "Premium luxury experience."
+      },
+      { upsert: true }
+    );
+  }
 };
