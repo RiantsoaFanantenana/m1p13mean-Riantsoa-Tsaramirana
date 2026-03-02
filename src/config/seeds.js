@@ -4,6 +4,8 @@ import ShopType from '../models/shop/ShopType.js';
 import SubscriptionType from '../models/mall/SubscriptionType.js';
 import Configuration from '../models/misc/Configuration.js';
 import {hashPassword} from '../util/password.util.js';
+import Charge from '../models/misc/Charge.js';
+import OpeningHours from '../models/mall/OpeningHours.js';
 
 export const seedAdminUser = async () => {
   try {
@@ -86,6 +88,19 @@ export const seedData = async () => {
     );
   }
 
+  
+  // Charges
+  const chargesConfig = [
+    { name: "rent", month_frequencey : 1, unit_price: 1000 },
+    { name: "subscription", month_frequencey : 1, unit_price: 200 },
+  ];
+  for (const charge of chargesConfig) {
+    await Charge.updateOne(
+      { name: charge.name },
+      { name: charge.name, month_frequencey: charge.month_frequencey, unit_price: charge.unit_price },
+      { upsert: true }
+    );
+  }
   // -------- Configuration (Allowed Config Tables) --------
   await Configuration.updateOne(
     { key: "allowed_config_tables" },
@@ -106,7 +121,7 @@ export const seedData = async () => {
         },
                 {
           alias: "opening-hours",
-          model: "OpeningHour"
+          model: "OpeningHours"
         },
         {
           alias: "subscriptions",
@@ -116,6 +131,25 @@ export const seedData = async () => {
     },
     { upsert: true }
   );
+
+  // -------- Opening Hours (Default Mall Schedule) --------
+  const defaultOpeningHours = [
+    { day: "Monday", open_time: "09:00", close_time: "20:00" },
+    { day: "Tuesday", open_time: "09:00", close_time: "20:00" },
+    { day: "Wednesday", open_time: "09:00", close_time: "20:00" },
+    { day: "Thursday", open_time: "09:00", close_time: "21:00" },
+    { day: "Friday", open_time: "09:00", close_time: "22:00" },
+    { day: "Saturday", open_time: "10:00", close_time: "22:00" },
+    { day: "Sunday", open_time: "10:00", close_time: "18:00" },
+  ];
+
+  for (const schedule of defaultOpeningHours) {
+    await OpeningHours.updateOne(
+      { day: schedule.day }, // 1 entrée par jour
+      schedule,
+      { upsert: true }
+    );
+  }
 
   // / -------- Business Configurations --------
 

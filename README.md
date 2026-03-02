@@ -1,4 +1,3 @@
-```md
 # 📦 m1p13mean – Riantsoa Tsaramirana  
 **Projet Final – Master 1 | Mars 2026**
 
@@ -10,47 +9,48 @@ API REST développée dans le cadre du projet final de Master 1.
 
 Cette application permet :
 
-- 🔐 L’authentification des clients  
-- 🏪 L’enregistrement et la gestion des boutiques  
+- 🔐 L'authentification des clients  
+- 🏪 L'enregistrement et la gestion des boutiques  
 - ⚙️ La configuration initiale des shops  
-- 📊 Le suivi des boutiques non configurées  
+- 💳 Le paiement des charges mensuelles  
+- 🎟 La gestion des coupons  
+- 📅 La création d'événements  
+- 📊 Le suivi financier et contractuel  
 
-L’API est conçue selon une architecture RESTful avec séparation claire des responsabilités (routes, contrôleurs, modèles, middleware).
+L'API est conçue selon une architecture RESTful avec séparation claire des responsabilités (routes, contrôleurs, modèles, middleware).
 
 ---
 
 ## 🚀 Base URL
 
 ```
-
-[http://localhost:3000/api](http://localhost:3000/api)
-
-````
+http://localhost:3000/api
+```
 
 ---
 
-## 🔐 Authentification
+# 🔐 Authentification
 
-### `POST /api/auth/register`
+## `POST /api/auth/register`
 
-Inscription d’un client.
+Inscription d'un client.
 
-#### Body (JSON)
+### Body (JSON)
 
 ```json
 {
   "email": "client@example.com",
   "password": "password123"
 }
-````
+```
 
 ---
 
-### `POST /api/auth/login`
+## `POST /api/auth/login`
 
-Connexion d’un client.
+Connexion d'un utilisateur.
 
-#### Body (JSON)
+### Body (JSON)
 
 ```json
 {
@@ -59,7 +59,7 @@ Connexion d’un client.
 }
 ```
 
-#### Réponse (exemple)
+### Réponse (exemple)
 
 ```json
 {
@@ -70,13 +70,13 @@ Connexion d’un client.
 
 ---
 
-## 🛠 Administration
+# 🛠 Administration
 
-### `POST /api/admin/register-shop`
+## `POST /api/admin/register-shop`
 
 Créer et enregistrer une nouvelle boutique.
 
-#### Body (JSON)
+### Body (JSON)
 
 ```json
 {
@@ -89,24 +89,67 @@ Créer et enregistrer une nouvelle boutique.
 }
 ```
 
-#### Champs requis
+### Champs requis
 
-* `shopName` : Nom de la boutique
-* `email` : Email du shop
-* `shopType` : Type d’activité
-* `duration` : Durée du contrat (en mois)
-* `startDate` : Date de début du contrat
-* `boxId` : Identifiant du box
+* `shopName`
+* `email`
+* `shopType`
+* `duration`
+* `startDate`
+* `boxId`
 
 ---
 
-## 🏪 Gestion des Shops
+## `GET /api/admin/accept-payement/:payementId`
 
-### `PATCH /api/shop/configure`
+Permet à l'administrateur d'accepter un paiement effectué par un shop.
 
-Configuration initiale d’un shop après création.
+### Paramètre URL
 
-#### Body (JSON)
+* `payementId` : ID du paiement à valider
+
+### Effets
+
+* Change le statut du paiement (`review` → `accepted`)
+* Met à jour les `MonthlyChargeStatus` correspondants
+
+---
+
+## `GET /api/admin/alert-contracts-ending-soon`
+
+Retourne la liste des contrats arrivant bientôt à expiration.
+
+### Query params (optionnel)
+
+```
+?daysBeforeEnd=7
+```
+
+### Réponse (exemple)
+
+```json
+[
+  {
+    "shop": {
+      "shopName": "Tech Store",
+      "box": "BOX-01"
+    },
+    "startDate": "2025-03-01",
+    "duration": 12,
+    "endDate": "2026-03-01"
+  }
+]
+```
+
+---
+
+# 🏪 Gestion des Shops
+
+## `PATCH /api/shop/configure`
+
+Configuration initiale d'un shop après création.
+
+### Body (JSON)
 
 ```json
 {
@@ -118,21 +161,13 @@ Configuration initiale d’un shop après création.
 }
 ```
 
-#### Champs requis
-
-* `user` : Identifiant ou email du shop
-* `newPassword` : Nouveau mot de passe
-* `logo` : Image/logo du shop
-* `coverPic` : Image de couverture
-* `description` : Description du shop
-
 ---
 
-### `POST /api/shop/log-unconfigured`
+## `POST /api/shop/log-unconfigured`
 
-Permet d’enregistrer ou de logger les boutiques qui ne sont pas encore configurées.
+Permet de logger les boutiques non configurées.
 
-#### Exemple de réponse
+### Réponse
 
 ```json
 {
@@ -142,89 +177,274 @@ Permet d’enregistrer ou de logger les boutiques qui ne sont pas encore configu
 ```
 
 ---
-## 🏪 Données dashboard
 
-### `GET /api/admin/revenues-expenditures`
+# 💳 Paiement des Charges
 
-Permet de récupérer les revenues et les dépenses totaux
+## `POST /api/shop/pay`
 
-#### Exemple de réponse
+Permet à un shop d'effectuer un paiement pour une ou plusieurs périodes.
 
-```json
-{
-  "totalExpenditure": 120 000,
-  "totalRevenue": 200 000
-}
-```
-
-### `GET /api/admin/revenues-details`
-
-Permet de les revenues totaux par catégorie (Loyer, Abonnement)
-
-#### Exemple de réponse
+### Body (JSON)
 
 ```json
 {
-  [
-    {
-      "_id": "Loyer",
-      "totalAmount": "1 500 000"
-    }
+  "periods": [
+    { "month": 2, "year": 2026 },
+    { "month": 3, "year": 2026 }
+  ],
+  "chargesIds": [
+    "charge_id_1",
+    "charge_id_2"
   ]
 }
 ```
 
-### `GET /api/admin/expenditures-details`
+### Logique métier
 
-Permet de récupérer les dépenses par catégorie
+* Le montant (`amount`) est calculé automatiquement :
 
-#### Exemple de réponse
-
-```json
-{
-  [
-    {
-      "_id": "Réparation",
-      "totalAmount": "1 500 000"
-    }
-  ]
-}
-```
-### `GET /api/admin/shops-close-contract-end?daysBeforeEnd=7`
-
-Permet de récupérer la liste des contrats qui s'expireront dans x jours
-
-#### Exemple de réponse
-
-```json
-{
-  [
-    {
-      "shop": {
-        "user": "id",
-        "shopType": "id_shop_type",
-        "box": "box_id",
-        "shopName": "ShopName",
-      },
-      "startDate": "date",
-      "duration": "duration",
-      "endDate": "endDate";
-    }
-  ]
-}
-```
-
-
-## 🔐 Sécurité
-
-* Authentification basée sur **JWT**
-* Middleware de protection des routes sensibles
-* Validation des données en entrée
-* Hash des mots de passe
+  * **Loyer** → `unit_price × superficie du box`
+  * **Abonnement** → `unit_price × 1`
+* Création automatique des `MonthlyChargeStatus` manquants
+* Statut initial du paiement : `review`
 
 ---
 
-## 📦 Structure du projet
+# 🎟 Gestion des Coupons
+
+## `POST /api/shop/create-coupon`
+
+Permet à un shop de créer un coupon promotionnel.
+
+### Body (JSON)
+
+```json
+{
+  "title": "Promo Mars",
+  "description": "Réduction spéciale",
+  "discountPercentage": 20,
+  "validUntil": "2026-03-31"
+}
+```
+
+---
+
+# 📅 Gestion des Événements
+
+## `POST /api/shop/create-event`
+
+Permet à un shop de créer un événement.
+
+### Body (JSON)
+
+```json
+{
+  "title": "Lancement Nouveau Produit",
+  "description": "Présentation officielle",
+  "eventDate": "2026-04-15",
+  "location": "Mall Central"
+}
+```
+
+---
+
+# 🌐 Routes Générales
+
+> Toutes ces routes nécessitent une authentification (`Authorization: Bearer <token>`).
+
+## `GET /api/shops/search`
+
+Rechercher des boutiques.
+
+### Query params (exemple)
+
+```
+?q=tech&type=electronics
+```
+
+---
+
+## `GET /api/shops/:shopId`
+
+Récupérer le profil d'une boutique.
+
+### Paramètre URL
+
+* `shopId` : ID de la boutique
+
+---
+
+## `GET /api/shops/group/:groupName`
+
+Récupérer les boutiques appartenant à un groupe.
+
+### Paramètre URL
+
+* `groupName` : Nom du groupe
+
+---
+
+## `GET /api/events`
+
+Récupérer tous les événements.
+
+---
+
+## `GET /api/shops/:shopId/reviews`
+
+Récupérer les avis d'une boutique.
+
+### Paramètre URL
+
+* `shopId` : ID de la boutique
+
+---
+
+## `GET /api/shops/:shopId/events`
+
+Récupérer les événements d'une boutique.
+
+### Paramètre URL
+
+* `shopId` : ID de la boutique
+
+---
+
+# 👤 Routes Client
+
+> Toutes ces routes nécessitent une authentification et le rôle `client`.
+
+## `GET /api/client/redeem-coupon/:shopId/:code`
+
+Utiliser un coupon promotionnel.
+
+### Paramètres URL
+
+* `shopId` : ID de la boutique
+* `code` : Code du coupon
+
+---
+
+## `GET /api/client/wallet`
+
+Consulter le portefeuille du client connecté.
+
+---
+
+## `POST /api/client/post-review/:shopId`
+
+Publier un avis sur une boutique.
+
+### Paramètre URL
+
+* `shopId` : ID de la boutique
+
+### Body (JSON)
+
+```json
+{
+  "rating": 4,
+  "comment": "Très bonne boutique !"
+}
+```
+
+---
+
+## `GET /api/client/get-favorites`
+
+Récupérer la liste des boutiques favorites du client.
+
+---
+
+## `POST /api/client/add-shop-favorite/:shopId`
+
+Ajouter une boutique aux favoris.
+
+### Paramètre URL
+
+* `shopId` : ID de la boutique à ajouter aux favoris
+
+---
+
+# ⚙️ Configuration
+
+> Route accessible aux rôles `admin`, `shop` et `customer`. Nécessite une authentification.
+
+## `GET /api/configurations/:tableName`
+
+Récupérer les données d'une table de configuration.
+
+### Paramètre URL
+
+* `tableName` : Nom de la table de configuration à consulter
+
+### Réponse (exemple)
+
+```json
+{
+  "status": "success",
+  "data": { }
+}
+```
+
+---
+
+# 📊 Dashboard Administrateur
+
+## `GET /api/admin/revenues-expenditures`
+
+Retourne les revenus et dépenses totaux.
+
+```json
+{
+  "totalExpenditure": 120000,
+  "totalRevenue": 200000
+}
+```
+
+---
+
+## `GET /api/admin/revenues-details`
+
+Revenus groupés par catégorie.
+
+```json
+[
+  {
+    "_id": "Loyer",
+    "totalAmount": 1500000
+  }
+]
+```
+
+---
+
+## `GET /api/admin/expenditures-details`
+
+Dépenses groupées par catégorie.
+
+```json
+[
+  {
+    "_id": "Réparation",
+    "totalAmount": 1500000
+  }
+]
+```
+
+---
+
+# 🔐 Sécurité
+
+* Authentification basée sur **JWT**
+* Middleware de protection des routes sensibles
+* Validation des données
+* Hash des mots de passe
+* Séparation des rôles (Admin / Shop / Client)
+
+---
+
+# 📦 Structure du projet
 
 ```
 src/
@@ -241,7 +461,7 @@ package.json
 
 ---
 
-## ⚙️ Installation
+# ⚙️ Installation
 
 ```bash
 git clone <repository_url>
@@ -251,7 +471,7 @@ npm install
 
 ---
 
-## ▶️ Lancement du serveur
+# ▶️ Lancement
 
 ```bash
 npm run dev
@@ -265,16 +485,9 @@ npm start
 
 ---
 
-## 📌 Notes importantes
+# 📌 Format des réponses
 
-* Toutes les requêtes utilisent le format **application/json**
-* Les routes protégées nécessitent un token JWT dans le header :
-
-```
-Authorization: Bearer <token>
-```
-
-* Les réponses suivent une structure standard :
+Toutes les réponses suivent la structure :
 
 ```json
 {
@@ -284,12 +497,15 @@ Authorization: Bearer <token>
 }
 ```
 
+Routes protégées :
+
+```
+Authorization: Bearer <token>
+```
+
 ---
 
 ## 🧑‍💻 Auteur
 
 **Riantsoa Tsaramirana**
 Projet académique – Master 1 – 2026
-
-```
-```

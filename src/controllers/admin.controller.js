@@ -3,7 +3,21 @@ import User from '../models/user/User.js'
 import ShopProfile from '../models/shop/ShopProfile.js';
 import BoxTicket from '../models/mall/BoxTicket.js';
 import {createShopWithContract, getRevenuesAndExpenditures, getRevenueDetails, getExpenditureDetails } from '../services/admin.services.js';
-import {getShopsWithCloseContractEnd, alertContractsEndingSoon, acceptPayement} from '../services/admin.services.js';
+import {getShopsWithCloseContractEnd, alertContractsEndingSoon} from '../services/admin.services.js';
+import {acceptPayement} from '../services/admin.services.js';
+
+// =====================
+// ACCEPT PAYEMENT PROOF (ADMIN ONLY)
+// =====================
+export const acceptPayementController = async (req, res) => {
+  try {
+    const { payementId } = req.params;
+    const payement = await acceptPayement(payementId);
+    res.json({ message: "Payement accepted successfully", payement });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 // =====================
 // ALERT CONTRACTS ENDING SOON
